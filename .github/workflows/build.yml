@@ -39,7 +39,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install setuptools
           python -m pip install "Cython==0.29.34"
-          python -m pip install buildozer
+          python -m pip install "buildozer==1.5.0"
 
       - name: Clean previous build cache
         run: |
