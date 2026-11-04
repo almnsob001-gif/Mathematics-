@@ -1,51 +1,27 @@
 [app]
-
-# (str) عنوان التطبيق
 title = Mathematics
-
-# (str) اسم الحزمة (يجب أن يكون بحروف صغيرة)
 package.name = mathematics
-
-# (str) معرف الحزمة
 package.domain = org.almnsob
-
-# (str) مجلد الكود المصدري
 source.dir = .
-
-# (list) الامتدادات التي سيتم تضمينها
 source.include_exts = py,png,jpg,kv,atlas,txt,md
-
-# (str) إصدار التطبيق
 version = 1.0
 
-# (list) المتطلبات (تم توحيد إصدارات بايثون هنا لحل المشكلة)
-requirements = python3==3.10.12,hostpython3==3.10.12,kivy,flask,sympy==1.13.0,mpmath==1.3.0
+# تثبيت إصدارات متوافقة ومعروفة بالاستقرار
+requirements = python3==3.10.12,hostpython3==3.10.12,kivy==2.3.0,flask,sympy==1.12,mpmath==1.3.0
 
-# (str) استخدام فرع التطوير لضمان التوافق
-p4a.branch = develop
+# إجبار استخدام الفرع الرئيسي المستقر
+p4a.branch = master
 
-# (str) اتجاه الشاشة
+# رفع واجهة برمجة التطبيقات لتجنب مشاكل الأندرويد الحديثة
+android.api = 30
+android.minapi = 21
+android.archs = arm64-v8a, armeabi-v7a
+android.permissions = INTERNET
+android.allow_backup = True
+
 orientation = portrait
-
-# (bool) ملء الشاشة
 fullscreen = 0
 
-# (list) صلاحيات التطبيق (ضرورية ليعمل Flask)
-android.permissions = INTERNET
-
-# (int) نسخة أندرويد المستهدفة (27 لتجاوز حظر HTTP المحلي)
-android.api = 27
-
-# (int) أقل نسخة أندرويد مدعومة
-android.minapi = 21
-
-# (list) معماريات المعالج
-android.archs = arm64-v8a, armeabi-v7a
-
 [buildozer]
-
-# (int) مستوى السجلات
 log_level = 2
-
-# (int) إظهار تحذير إذا تم التشغيل كـ root
 warn_on_root = 1
