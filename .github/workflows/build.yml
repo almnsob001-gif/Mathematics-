@@ -41,6 +41,11 @@ jobs:
           python -m pip install "Cython==0.29.34"
           python -m pip install "buildozer==1.5.0"
 
+      - name: Accept Android SDK licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || \
+          yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
+
       - name: Clean previous build cache
         run: |
           rm -rf .buildozer
