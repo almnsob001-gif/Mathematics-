@@ -16,6 +16,10 @@ def solve_math_input(input_str):
     x = sp.Symbol('x')
     local_dict = {'x': x}
     input_str = input_str.replace(' ', '')
+    
+    # ✨ هنا السحر: تحويل الرموز العربية/الطبيعية إلى رموز يفهمها الحاسوب
+    input_str = input_str.replace('×', '*').replace('·', '*').replace('÷', '/')
+    
     is_equation = '=' in input_str
     steps = []
     
@@ -32,7 +36,6 @@ def solve_math_input(input_str):
             expr = sp.expand(eq.lhs - eq.rhs)
             steps.append({"title": "تجميع الحدود في طرف واحد", "math": f"{sp.latex(expr)} = 0", "text": ""})
             
-            # محاولة التحليل إلى عوامل
             try:
                 factored = sp.factor(expr)
                 if factored != expr:
@@ -69,7 +72,7 @@ def solve_math_input(input_str):
             return steps, [sp.latex(simplified)]
             
     except Exception as e:
-        steps.append({"title": "خطأ في القراءة", "text": "تأكد من كتابة المعادلة أو التعبير بشكل صحيح (مثال: x^2 - 4 أو 2x+3=7).", "math": ""})
+        steps.append({"title": "خطأ في القراءة", "text": "تأكد من كتابة المعادلة أو التعبير بشكل صحيح (مثال: 2×3 أو x^2 - 4).", "math": ""})
         return steps, []
 
 HTML = r"""
@@ -98,7 +101,7 @@ HTML = r"""
 <div class="box">
   <h2 style="text-align:center;">🧮 حل المسائل الذكي</h2>
   <form method="POST">
-    <input type="text" name="equation" value="{{ equation }}" placeholder="مثال: (x+1)^2 أو 2x+3=7 أو x^3-8=0" required>
+    <input type="text" name="equation" value="{{ equation }}" placeholder="مثال: 5 × 3 أو 2x + 3 = 7" required>
     <button type="submit">حل</button>
   </form>
   {% if steps %}
