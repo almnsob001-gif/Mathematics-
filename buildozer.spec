@@ -6,13 +6,15 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,txt,md
 version = 1.0
 
-# تثبيت الإصدارات المتوافقة
-requirements = python3==3.10.12,hostpython3==3.10.12,kivy,flask,sympy==1.12,mpmath==1.3.0
+# إضافة setuptools وإصدارات مستقرة
+requirements = python3==3.10.12,hostpython3==3.10.12,setuptools,kivy,flask,sympy==1.12,mpmath==1.3.0
 
-# استخدام الفرع التطويري لـ p4a للحصول على آخر الإصلاحات
-p4a.branch = develop
+# العودة إلى الفرع المستقر master لتجنب مشاكل develop
+p4a.branch = master
 
-# *** الأهم: تحديد إصدار NDK متوافق ***
+# قبول تراخيص Android SDK تلقائياً (سبب شائع جداً للفشل)
+android.accept_sdk_license = True
+
 android.ndk = 27b
 android.api = 30
 android.minapi = 21
