@@ -1,39 +1,51 @@
 from flask import Flask, request, render_template_string
 import re
+import math
 from fractions import Fraction
 
 app = Flask(__name__)
 
 def parse_equation(eq_str):
-    eq_str = eq_str.replace(' ', '').replace('-', '+-')
+    # تنظيف النص من المسافات وعلامات الضرب
+    eq_str = eq_str.replace(' ', '').replace('*', '')
+    
+    # نقل كل الحدود إلى طرف واحد
     if '=' in eq_str:
-        lhs, rhs = eq_str.split('=')
-        if rhs.startswith('+-'): rhs = '-' + rhs[2:]
-        elif not rhs.startswith('-'): rhs = '-' + rhs
+        lhs, rhs = eq_str.split('=', 1)
+        if rhs.startswith('-'):
+            rhs = '+' + rhs[1:]
+        elif rhs.startswith('+'):
+            rhs = '-' + rhs[1:]
+        else:
+            rhs = '-' + rhs
         eq_str = lhs + rhs
+        
+    if not (eq_str.startswith('+') or eq_str.startswith('-')):
+        eq_str = '+' + eq_str
+        
+    # تقسيم المعادلة إلى حدود منفصلة
+    eq_str = eq_str.replace('-', '+-')
+    terms = eq_str.split('+')
     
-    a, b, c = 0, 0, 0
+    a, b, c = Fraction(0), Fraction(0), Fraction(0)
     
-    # استخراج معامل x^2
-    match_a = re.search(r'([+-]?\d*)x\^2', eq_str)
-    if match_a:
-        coeff = match_a.group(1)
-        a = 1 if coeff in ['', '+'] else (-1 if coeff == '-' else Fraction(coeff))
-        eq_str = eq_str.replace(match_a.group(0), '')
-        
-    # استخراج معامل x
-    match_b = re.search(r'([+-]?\d*)x', eq_str)
-    if match_b:
-        coeff = match_b.group(1)
-        b = 1 if coeff in ['', '+'] else (-1 if coeff == '-' else Fraction(coeff))
-        eq_str = eq_str.replace(match_b.group(0), '')
-        
-    # استخراج الحد الثابت
-    if eq_str and eq_str not in ['+', '-']:
-        c = Fraction(eq_str) if eq_str else 0
-    elif eq_str == '+': c = 1
-    elif eq_str == '-': c = -1
-        
+    for term in terms:
+        if not term: continue
+        if 'x^2' in term:
+            coeff_str = term.replace('x^2', '')
+            if coeff_str in ['', '+']: a += 1
+            elif coeff_str == '-': a -= 1
+            else: a += Fraction(coeff_str)
+        elif 'x' in term:
+            coeff_str = term.replace('x', '')
+            if coeff_str in ['', '+']: b += 1
+            elif coeff_str == '-': b -= 1
+            else: b += Fraction(coeff_str)
+        else:
+            if term == '-': c -= 1
+            elif term == '+': c += 1
+            else: c += Fraction(term)
+            
     return a, b, c
 
 def frac_to_str(f):
@@ -42,12 +54,17 @@ def frac_to_str(f):
 
 def solve_with_steps(eq_str):
     steps = []
-    a, b, c = parse_equation(eq_str)
-    
     steps.append({"title": "المعادلة الأصلية", "math": eq_str.replace('^', '^'), "text": ""})
     
+    # التحقق من الدرجات الأعلى
+    if 'x^3' in eq_str or 'x^4' in eq_str:
+        steps.append({"title": "تنبيه", "text": "التطبيق يدعم حالياً المعادلات من الدرجة الأولى والثانية فقط.", "math": ""})
+        return steps, ["غير مدعوم"]
+        
+    a, b, c = parse_equation(eq_str)
+    
     if a == 0 and b == 0:
-        return steps, ["لا يوجد حل أو عدد لا نهائي من الحلول"]
+        return steps, ["لا يوجد حل أو عدد لا نهائي"]
         
     if a == 0:
         # معادلة خطية
@@ -66,12 +83,25 @@ def solve_with_steps(eq_str):
     
     if delta > 0:
         steps.append({"title": "تفسير المميز", "math": "\\Delta > 0", "text": "للمعادلة جذران حقيقيان مختلفان."})
-        import math
-        x1 = (-b + math.sqrt(delta)) / (2*a)
-        x2 = (-b - math.sqrt(delta)) / (2*a)
-        steps.append({"title": "الجذر الأول", "math": f"x_1 = \\frac{{-({frac_to_str(b)}) + \\sqrt{{{frac_to_str(delta)}}}}}{{2({frac_to_str(a)})}} \\approx {x1:.3f}", "text": ""})
-        steps.append({"title": "الجذر الثاني", "math": f"x_2 = \\frac{{-({frac_to_str(b)}) - \\sqrt{{{frac_to_str(delta)}}}}}{{2({frac_to_str(a)})}} \\approx {x2:.3f}", "text": ""})
-        return steps, [f"{x1:.3f}", f"{x2:.3f}"]
+        
+        # التحقق من وجود جذر تربيعي دقيق
+        num_sqrt = math.isqrt(delta.numerator)
+        den_sqrt = math.isqrt(delta.denominator)
+        
+        if num_sqrt**2 == delta.numerator and den_sqrt**2 == delta.denominator:
+            sqrt_delta = Fraction(num_sqrt, den_sqrt)
+            x1 = (-b + sqrt_delta) / (2*a)
+            x2 = (-b - sqrt_delta) / (2*a)
+            steps.append({"title": "الجذر الأول", "math": f"x_1 = \\frac{{-({frac_to_str(b)}) + {frac_to_str(sqrt_delta)}}}{{2({frac_to_str(a)})}} = {frac_to_str(x1)}", "text": ""})
+            steps.append({"title": "الجذر الثاني", "math": f"x_2 = \\frac{{-({frac_to_str(b)}) - {frac_to_str(sqrt_delta)}}}{{2({frac_to_str(a)})}} = {frac_to_str(x2)}", "text": ""})
+            return steps, [frac_to_str(x1), frac_to_str(x2)]
+        else:
+            x1 = (-float(b) + math.sqrt(float(delta))) / (2*float(a))
+            x2 = (-float(b) - math.sqrt(float(delta))) / (2*float(a))
+            steps.append({"title": "الجذر الأول", "math": f"x_1 = \\frac{{-({frac_to_str(b)}) + \\sqrt{{{frac_to_str(delta)}}}}}{{2({frac_to_str(a)})}} \\approx {x1:.3f}", "text": ""})
+            steps.append({"title": "الجذر الثاني", "math": f"x_2 = \\frac{{-({frac_to_str(b)}) - \\sqrt{{{frac_to_str(delta)}}}}}{{2({frac_to_str(a)})}} \\approx {x2:.3f}", "text": ""})
+            return steps, [f"{x1:.3f}", f"{x2:.3f}"]
+            
     elif delta == 0:
         steps.append({"title": "تفسير المميز", "math": "\\Delta = 0", "text": "للمعادلة جذر حقيقي واحد مكرر."})
         x = -b / (2*a)
@@ -139,7 +169,7 @@ def home():
             try:
                 steps, solution = solve_with_steps(equation)
             except Exception as e:
-                steps = [{"title": "خطأ", "text": str(e), "math": ""}]
+                steps = [{"title": "خطأ في القراءة", "text": "تأكد من كتابة المعادلة بشكل صحيح (مثال: x^2 - 5x + 6 = 0)", "math": ""}]
     return render_template_string(HTML, steps=steps, solution=solution, equation=equation)
 
 if __name__ == '__main__':
