@@ -18,22 +18,22 @@ source.include_exts = py,png,jpg,kv,atlas,txt,md
 # (str) إصدار التطبيق
 version = 1.0
 
-# (list) المتطلبات (أهم سطر: تثبيت بايثون 3.10 وإصدارات محددة للمكتبات)
-requirements = python3==3.10.12,kivy,flask,sympy==1.13.0,mpmath==1.3.0
+# (list) المتطلبات (تم توحيد إصدارات بايثون هنا لحل المشكلة)
+requirements = python3==3.10.12,hostpython3==3.10.12,kivy,flask,sympy==1.13.0,mpmath==1.3.0
 
-# (str) استخدام فرع التطوير من python-for-android لضمان التوافق
+# (str) استخدام فرع التطوير لضمان التوافق
 p4a.branch = develop
 
 # (str) اتجاه الشاشة
 orientation = portrait
 
-# (bool) ملء الشاشة (0 يعني إظهار شريط الحالة)
+# (bool) ملء الشاشة
 fullscreen = 0
 
 # (list) صلاحيات التطبيق (ضرورية ليعمل Flask)
 android.permissions = INTERNET
 
-# (int) نسخة أندرويد المستهدفة (27 ضروري لتجاوز حظر HTTP المحلي)
+# (int) نسخة أندرويد المستهدفة (27 لتجاوز حظر HTTP المحلي)
 android.api = 27
 
 # (int) أقل نسخة أندرويد مدعومة
