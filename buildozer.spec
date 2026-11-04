@@ -6,15 +6,17 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,txt,md
 version = 1.0
 
-# إضافة setuptools وإصدارات مستقرة
-requirements = python3==3.10.12,hostpython3==3.10.12,setuptools,kivy,flask,sympy==1.12,mpmath==1.3.0
+# تم إزالة mpmath من هنا لأننا سنبنيه عبر وصفة محلية
+requirements = python3==3.10.12,hostpython3==3.10.12,setuptools,kivy,flask,sympy
 
-# العودة إلى الفرع المستقر master لتجنب مشاكل develop
+# المفتاح لحل مشكلة SymPy: استخدام المجلد المحلي للوصفات
+p4a.local_recipes = ./p4a-recipes
 p4a.branch = master
 
-# قبول تراخيص Android SDK تلقائياً (سبب شائع جداً للفشل)
+# قبول التراخيص تلقائياً
 android.accept_sdk_license = True
 
+# إعدادات NDK والأندرويد المستقرة
 android.ndk = 27b
 android.api = 30
 android.minapi = 21
