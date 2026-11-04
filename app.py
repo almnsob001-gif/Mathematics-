@@ -23,7 +23,6 @@ def parse_equation(eq_str, x):
     return sp.Eq(lhs, rhs)
 
 def substitute_display(expr, x, val):
-    """يعرض التعبير مع التعويض بقيمة دون حساب الناتج"""
     tmp = Symbol('subval')
     return sp.latex(expr.subs(x, tmp), symbol_names={'subval': sp.latex(val)})
 
