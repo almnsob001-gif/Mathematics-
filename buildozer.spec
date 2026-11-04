@@ -6,17 +6,10 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,txt,md
 version = 1.0
 
-# تم إزالة mpmath من هنا لأننا سنبنيه عبر وصفة محلية
-requirements = python3==3.10.12,hostpython3==3.10.12,setuptools,kivy,flask,sympy
+# تم حذف SymPy تماماً! لم يتبق سوى Flask و Kivy
+requirements = python3==3.10.12,hostpython3==3.10.12,kivy,flask
 
-# المفتاح لحل مشكلة SymPy: استخدام المجلد المحلي للوصفات
-p4a.local_recipes = ./p4a-recipes
-p4a.branch = master
-
-# قبول التراخيص تلقائياً
 android.accept_sdk_license = True
-
-# إعدادات NDK والأندرويد المستقرة
 android.ndk = 27b
 android.api = 30
 android.minapi = 21
